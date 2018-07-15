@@ -248,13 +248,19 @@ Follow the instructions on the Ghost website to [install Ghost as an NPM Module]
           res.status(200).send('ok').end();
         });
 
-1. Edit `index.js` and insert the following lines after `parentApp = express();`:
+1. Add a parent express app and include the appengine router. Replace `index.js` with the following:
 
-        parentApp = express();
-
-        // Add these two lines for Google App Engine
+        var ghost = require('ghost');
+        var express = require('express');
+        var parentApp = express();
+        
         parentApp.set('trust proxy', true);
         parentApp.use(require('./appengine'));
+        
+        ghost().then(function (ghostServer) {
+          parentApp.use('/', ghostServer.rootApp);
+          ghostServer.start(parentApp);
+        });
 
 1. Prepare for deployment. Create an `app.yaml` file with the following contents:
 
